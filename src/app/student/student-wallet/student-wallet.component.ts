@@ -11,7 +11,9 @@ import { WalletService } from '../../service/wallet.service';
 export class StudentWalletComponent implements OnChanges {
   @Input() student: Student | undefined;
   isAddingMoney: boolean = false;
+  isWithdrawingMoney: boolean = false;
   amountToAdd: number = 0;
+  amountToWithdraw: number = 0;
 
   constructor(private walletService: WalletService) {}
 
@@ -24,11 +26,22 @@ export class StudentWalletComponent implements OnChanges {
 
   showAddMoneyForm() {
     this.isAddingMoney = true;
+    this.isWithdrawingMoney = false;
   }
 
   hideAddMoneyForm() {
     this.isAddingMoney = false;
     this.amountToAdd = 0;
+  }
+
+  showWithdrawMoneyForm() {
+    this.isWithdrawingMoney = true;
+    this.isAddingMoney = false;
+  }
+
+  hideWithdrawMoneyForm() {
+    this.isWithdrawingMoney = false;
+    this.amountToWithdraw = 0;
   }
 
   onAddMoney() {
@@ -56,12 +69,42 @@ export class StudentWalletComponent implements OnChanges {
   }
 
   onWithdrawMoney() {
-    if (this.student && this.student.id) {
-      console.log(`Withdrawing money from ${this.student.name}'s wallet`);
+    if (this.student && this.student.id && this.amountToWithdraw > 0) {
+      const description = 'Withdrawn funds';
+
+      this.walletService
+        .withdrawMoneyFromWallet(
+          this.student.id,
+          this.amountToWithdraw,
+          description
+        )
+        .subscribe(() => {
+          if (this.student) {
+            this.student.balance -= this.amountToWithdraw;
+            this.student.wallet.transactions.push({
+              date: new Date().toISOString(),
+              amount: -this.amountToWithdraw,
+              description: description,
+            });
+            console.log(
+              `Withdrew money from ${this.student.name}'s wallet`,
+              this.student.balance
+            );
+            this.hideWithdrawMoneyForm();
+          }
+        });
     }
   }
 
   isAddMoneyDisabled(): boolean {
     return this.amountToAdd === null || this.amountToAdd <= 0;
+  }
+
+  isWithdrawMoneyDisabled(): any {
+    return (
+      this.amountToWithdraw === null ||
+      this.amountToWithdraw <= 0 ||
+      (this.student && this.amountToWithdraw > this.student.balance)
+    );
   }
 }

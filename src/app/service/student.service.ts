@@ -38,7 +38,7 @@ export class StudentService {
   addNewStudent(student: Student) {
     const newStudent: Student = {
       ...student,
-      balance: student.balance || 0,
+      balance: 0,
       wallet: {
         transactions: [],
       },

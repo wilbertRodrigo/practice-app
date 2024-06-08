@@ -4,7 +4,9 @@
   <p>Student: {{ student.name }}</p>
   <p>Balance: {{ student.balance }} {{ student.currency }}</p>
   <button (click)="showAddMoneyForm()" *ngIf="!isAddingMoney">Add Money</button>
-  <button (click)="onWithdrawMoney()">Withdraw Money</button>
+  <button (click)="showWithdrawMoneyForm()" *ngIf="!isWithdrawingMoney">
+    Withdraw Money
+  </button>
 
   <div *ngIf="isAddingMoney">
     <input type="number" [(ngModel)]="amountToAdd" placeholder="Enter amount" />
@@ -12,6 +14,18 @@
       Deposit
     </button>
     <button (click)="hideAddMoneyForm()">Cancel</button>
+  </div>
+
+  <div *ngIf="isWithdrawingMoney">
+    <input
+      type="number"
+      [(ngModel)]="amountToWithdraw"
+      placeholder="Enter amount"
+    />
+    <button (click)="onWithdrawMoney()" [disabled]="isWithdrawMoneyDisabled()">
+      Withdraw
+    </button>
+    <button (click)="hideWithdrawMoneyForm()">Cancel</button>
   </div>
 
   <h3>Transactions</h3>
