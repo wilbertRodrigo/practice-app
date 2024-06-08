@@ -20,7 +20,13 @@ export class StudentWalletComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['student'] && this.student) {
       // Ensure the wallet and transactions array are initialized
-      this.student.wallet = this.student.wallet || { transactions: [] };
+      if (!this.student.wallet) {
+        this.student.wallet = { transactions: [] };
+      }
+      if (!this.student.wallet.transactions) {
+        this.student.wallet.transactions = [];
+      }
+      this.student.balance = this.student.balance || 0; // Ensure balance is a number
     }
   }
 
@@ -52,7 +58,8 @@ export class StudentWalletComponent implements OnChanges {
         .addMoneyToWallet(this.student.id, this.amountToAdd, description)
         .subscribe(() => {
           if (this.student) {
-            this.student.balance += this.amountToAdd;
+            this.student.balance =
+              (this.student.balance || 0) + this.amountToAdd;
             this.student.wallet.transactions.push({
               date: new Date().toISOString(),
               amount: this.amountToAdd,
@@ -80,7 +87,8 @@ export class StudentWalletComponent implements OnChanges {
         )
         .subscribe(() => {
           if (this.student) {
-            this.student.balance -= this.amountToWithdraw;
+            this.student.balance =
+              (this.student.balance || 0) - this.amountToWithdraw;
             this.student.wallet.transactions.push({
               date: new Date().toISOString(),
               amount: -this.amountToWithdraw,

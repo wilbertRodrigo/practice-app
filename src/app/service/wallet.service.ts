@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import {
   Firestore,
   doc,
-  updateDoc,
-  arrayUnion,
+  runTransaction,
   DocumentReference,
 } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
@@ -27,16 +26,40 @@ export class WalletService {
       `students/${studentId}`
     ) as DocumentReference<Student>;
 
-    const transaction: Transaction = {
-      date: new Date().toISOString(),
-      amount: amount,
-      description: description,
-    };
-
     return from(
-      updateDoc(studentRef, {
-        balance: amount, // assuming balance is updated with rules or by summing transactions
-        'wallet.transactions': arrayUnion(transaction),
+      runTransaction(this.firestore, async (transaction) => {
+        const studentDoc = await transaction.get(studentRef);
+
+        if (!studentDoc.exists) {
+          throw new Error('Student does not exist!');
+        }
+
+        const studentData = studentDoc.data() as Student;
+
+        // Ensure wallet and transactions are initialized
+        if (!studentData.wallet) {
+          studentData.wallet = { transactions: [] };
+        }
+        if (!studentData.wallet.transactions) {
+          studentData.wallet.transactions = [];
+        }
+
+        const currentBalance = studentData.balance || 0; // Ensure balance is a number
+        const newBalance = currentBalance + amount;
+
+        const newTransaction: Transaction = {
+          date: new Date().toISOString(),
+          amount: amount,
+          description: description,
+        };
+
+        transaction.update(studentRef, {
+          balance: newBalance,
+          'wallet.transactions': [
+            ...studentData.wallet.transactions,
+            newTransaction,
+          ],
+        });
       })
     );
   }
@@ -51,16 +74,45 @@ export class WalletService {
       `students/${studentId}`
     ) as DocumentReference<Student>;
 
-    const transaction: Transaction = {
-      date: new Date().toISOString(),
-      amount: -amount, // Negative amount to indicate withdrawal
-      description: description,
-    };
-
     return from(
-      updateDoc(studentRef, {
-        balance: amount, // assuming balance is updated with rules or by summing transactions
-        'wallet.transactions': arrayUnion(transaction),
+      runTransaction(this.firestore, async (transaction) => {
+        const studentDoc = await transaction.get(studentRef);
+
+        if (!studentDoc.exists) {
+          throw new Error('Student does not exist!');
+        }
+
+        const studentData = studentDoc.data() as Student;
+
+        // Ensure wallet and transactions are initialized
+        if (!studentData.wallet) {
+          studentData.wallet = { transactions: [] };
+        }
+        if (!studentData.wallet.transactions) {
+          studentData.wallet.transactions = [];
+        }
+
+        const currentBalance = studentData.balance || 0; // Ensure balance is a number
+
+        if (currentBalance < amount) {
+          alert('Insufficient funds!'); // Prevent negative balance
+        }
+
+        const newBalance = currentBalance - amount;
+
+        const newTransaction: Transaction = {
+          date: new Date().toISOString(),
+          amount: -amount, // Negative amount to indicate withdrawal in transaction
+          description: description,
+        };
+
+        transaction.update(studentRef, {
+          balance: newBalance,
+          'wallet.transactions': [
+            ...studentData.wallet.transactions,
+            newTransaction,
+          ],
+        });
       })
     );
   }
