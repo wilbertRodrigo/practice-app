@@ -1,0 +1,25 @@
+<!-- src/app/components/student-wallet/student-wallet.component.html -->
+<div *ngIf="student">
+  <h2>Wallet</h2>
+  <p>Student: {{ student.name }}</p>
+  <p>Balance: {{ student.balance }} {{ student.currency }}</p>
+  <button (click)="showAddMoneyForm()" *ngIf="!isAddingMoney">Add Money</button>
+  <button (click)="onWithdrawMoney()">Withdraw Money</button>
+
+  <div *ngIf="isAddingMoney">
+    <input type="number" [(ngModel)]="amountToAdd" placeholder="Enter amount" />
+    <button (click)="onAddMoney()" [disabled]="isAddMoneyDisabled()">
+      Deposit
+    </button>
+    <button (click)="hideAddMoneyForm()">Cancel</button>
+  </div>
+
+  <h3>Transactions</h3>
+  <ul>
+    <li *ngFor="let transaction of student.wallet.transactions">
+      <p>Date: {{ transaction.date }}</p>
+      <p>Amount: {{ transaction.amount }}</p>
+      <p>Description: {{ transaction.description }}</p>
+    </li>
+  </ul>
+</div>

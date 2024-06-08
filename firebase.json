@@ -1,0 +1,12 @@
+{
+  "hosting": [
+    {
+      "target": "student-data",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ],
+  "database": {
+    "rules": "database.rules.json"
+  }
+}

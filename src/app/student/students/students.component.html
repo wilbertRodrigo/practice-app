@@ -1,0 +1,8 @@
+<div>
+  <ul>
+    <ng-container *ngFor="let student of students$ | async">
+      <li (click)="onSelectedStudent(student)">{{ student.name }}</li>
+    </ng-container>
+  </ul>
+</div>
+<app-student-wallet [student]="selectedStudent"></app-student-wallet>

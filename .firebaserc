@@ -1,0 +1,21 @@
+{
+  "targets": {
+    "testconnection-ee81d": {
+      "hosting": {
+        "student-data": [
+          "testconnection-ee81d"
+        ]
+      }
+    },
+    "connectiontofirebase-40f23": {
+      "hosting": {
+        "student-data": [
+          "connectiontofirebase-40f23"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "connectiontofirebase-40f23"
+  }
+}
