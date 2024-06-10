@@ -1,8 +1,17 @@
-<div>
-  <ul>
-    <ng-container *ngFor="let student of students$ | async">
-      <li (click)="onSelectedStudent(student)">{{ student.name }}</li>
-    </ng-container>
-  </ul>
+<div class="flex flex-row h-screen">
+  <div class="flex-1 p-4">
+    <ul>
+      <ng-container *ngFor="let student of students$ | async">
+        <li
+          (click)="onSelectedStudent(student)"
+          class="cursor-pointer hover:bg-red-600 p-2"
+        >
+          {{ student.name }}
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+  <div class="flex-1 p-4">
+    <app-student-wallet [student]="selectedStudent"></app-student-wallet>
+  </div>
 </div>
-<app-student-wallet [student]="selectedStudent"></app-student-wallet>
